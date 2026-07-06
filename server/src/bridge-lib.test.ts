@@ -136,6 +136,49 @@ test('ensureServer still falls back to in-process hosting when the detached spaw
   assert.equal(outcome, 'in-process');
 });
 
+test('ensureServer hosts in-process directly when no spawnDetached is given', async () => {
+  // The bridge omits spawnDetached under Electron hosts (e.g. Claude Desktop):
+  // a detached child cannot survive there, and the host's process monitor
+  // prompts the user about the spawned file. There must be no spawn attempt
+  // and no spawn-wait; the first (and only) wait is for the in-process server.
+  let inProcessStarted = false;
+  let waitCalls = 0;
+  const outcome = await ensureServer({
+    host: '127.0.0.1',
+    port: 61822,
+    probeFn: async () => false,
+    waitFn: async () => {
+      waitCalls += 1;
+      return true;
+    },
+    startInProcess: async () => {
+      inProcessStarted = true;
+    },
+  });
+
+  assert.equal(outcome, 'in-process');
+  assert.equal(inProcessStarted, true);
+  assert.equal(waitCalls, 1, 'must not spend a wait window on a spawn that never happened');
+});
+
+test('ensureServer still reuses an already-running server when no spawnDetached is given', async () => {
+  let inProcess = false;
+  const outcome = await ensureServer({
+    host: '127.0.0.1',
+    port: 61822,
+    probeFn: async () => true,
+    waitFn: async () => {
+      throw new Error('waitForPort should not run when a server is already up');
+    },
+    startInProcess: async () => {
+      inProcess = true;
+    },
+  });
+
+  assert.equal(outcome, 'already-running');
+  assert.equal(inProcess, false, 'must not host in-process when a server is already listening');
+});
+
 test('ensureServer reports failure when neither the detached child nor in-process hosting binds', async () => {
   const outcome = await ensureServer({
     host: '127.0.0.1',

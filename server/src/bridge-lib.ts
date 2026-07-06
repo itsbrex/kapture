@@ -51,8 +51,12 @@ export type EnsureServerOutcome = 'already-running' | 'spawned' | 'in-process' |
 export interface EnsureServerOptions {
   host: string;
   port: number;
-  /** Best-effort detached spawn of a standalone server process (must not throw). */
-  spawnDetached: () => void;
+  /**
+   * Best-effort detached spawn of a standalone server process. Omit to skip
+   * the detached-child step entirely and host in-process directly (used under
+   * hosts where a detached child cannot survive anyway).
+   */
+  spawnDetached?: () => void;
   /** Host the server inside the current process; resolves once it is listening. */
   startInProcess: () => Promise<void>;
   probeFn?: (host: string, port: number) => Promise<boolean>;
@@ -74,6 +78,7 @@ export interface EnsureServerOptions {
  *   2. Otherwise spawn a standalone server as a detached child and wait for it
  *      to bind. This keeps the shared-server model when the host can keep a
  *      detached child alive (e.g. a real `node` from a terminal or Claude Code).
+ *      Skipped when no spawnDetached is provided.
  *   3. If that child never binds the port, host the server *inside this
  *      process* instead. This is the fix for issue #13 ("Unable to connect to
  *      extension server"): under hosts whose bundled Node runtime cannot keep a
@@ -99,21 +104,23 @@ export async function ensureServer(options: EnsureServerOptions): Promise<Ensure
     return 'already-running';
   }
 
-  // Best-effort: a throw here (e.g. failing to open the spawn log) must not
-  // abort the in-process fallback, which is the guaranteed path.
-  try {
-    spawnDetached();
-  } catch (error) {
-    log(`detached spawn failed: ${(error as Error)?.message ?? String(error)}`);
-  }
-  if (await waitFn(host, port, { timeoutMs: spawnWaitMs })) {
-    return 'spawned';
-  }
+  if (spawnDetached) {
+    // Best-effort: a throw here (e.g. failing to open the spawn log) must not
+    // abort the in-process fallback, which is the guaranteed path.
+    try {
+      spawnDetached();
+    } catch (error) {
+      log(`detached spawn failed: ${(error as Error)?.message ?? String(error)}`);
+    }
+    if (await waitFn(host, port, { timeoutMs: spawnWaitMs })) {
+      return 'spawned';
+    }
 
-  log(
-    `detached Kapture server never bound ${host}:${port}; hosting it in-process ` +
-      `(this host's runtime cannot keep a detached child alive)`
-  );
+    log(
+      `detached Kapture server never bound ${host}:${port}; hosting it in-process ` +
+        `(this host's runtime cannot keep a detached child alive)`
+    );
+  }
   try {
     await startInProcess();
   } catch (error) {

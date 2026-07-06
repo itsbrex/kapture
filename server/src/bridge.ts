@@ -110,10 +110,16 @@ async function main() {
   // Desktop), the spawned server never binds the port, and the bridge used to
   // give up with exit(1). console.error (stderr) is safe; stdout is the MCP
   // channel.
+  //
+  // Under Electron's bundled Node the detached child is skipped outright: it
+  // cannot survive there anyway, and the host's process monitor flags the
+  // spawned file and prompts the user about it on every session. Hosting
+  // in-process directly avoids both.
+  const isElectron = Boolean(process.versions.electron);
   const outcome = await ensureServer({
     host: HOST,
     port: PORT,
-    spawnDetached: spawnDetachedServer,
+    spawnDetached: isElectron ? undefined : spawnDetachedServer,
     startInProcess: startServerInProcess,
     log: (message) => console.error(message),
   });
