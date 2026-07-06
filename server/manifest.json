@@ -2,7 +2,7 @@
   "dxt_version": "0.1",
   "name": "kapture",
   "display_name": "Kapture Browser Automation",
-  "version": "2.1.2",
+  "version": "2.6.1",
   "description": "Control web browsers through the Model Context Protocol using Chrome DevTools",
   "long_description": "Kapture is a powerful browser automation tool that enables AI assistants like Claude to control web browsers through a Chrome DevTools extension. It provides a seamless bridge between MCP clients and browser automation, allowing you to navigate pages, interact with elements, capture screenshots, and extract information from websites.\n\nKey features:\n- Navigate and control browser tabs\n- Click, hover, and interact with page elements\n- Fill forms and input fields\n- Capture screenshots of pages or specific elements\n- Extract DOM content and query elements\n- Monitor console logs in real-time\n- Support for multiple simultaneous browser connections",
   "author": {
@@ -17,11 +17,23 @@
   "documentation": "https://williamkapke.github.io/kapture/MCP_USAGE.html",
   "support": "https://github.com/williamkapke/kapture/issues",
   "icon": "icon.png",
-  "keywords": ["browser", "automation", "chrome", "devtools", "web", "scraping", "testing"],
+  "keywords": [
+    "browser",
+    "automation",
+    "chrome",
+    "devtools",
+    "web",
+    "scraping",
+    "testing"
+  ],
   "license": "MIT",
   "compatibility": {
     "claude_desktop": ">=0.11.0",
-    "platforms": ["darwin", "win32", "linux"],
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
     "runtimes": {
       "node": ">=16.0.0"
     }
@@ -31,7 +43,9 @@
     "entry_point": "dist/bridge.js",
     "mcp_config": {
       "command": "node",
-      "args": ["${__dirname}/dist/bridge.js"]
+      "args": [
+        "${__dirname}/dist/bridge.js"
+      ]
     }
   },
   "tools": [
@@ -56,68 +70,112 @@
       "description": "Navigate forward in browser history"
     },
     {
-      "name": "reload",
-      "description": "Reload the current page"
-    },
-    {
-      "name": "show",
-      "description": "Bring the browser tab to the front and focus it"
-    },
-    {
       "name": "click",
-      "description": "Click on a page element using CSS selector or XPath"
+      "description": "Click on a page element using CSS selector or XPath (first match, its unique selector is returned), or at a viewport coordinate by passing x and y instead"
     },
     {
       "name": "hover",
-      "description": "Hover over a page element"
+      "description": "Hover over a page element using CSS selector or XPath (first match, its unique selector is returned), or at a viewport coordinate by passing x and y instead"
     },
     {
       "name": "focus",
-      "description": "Set focus on a page element"
+      "description": "Set focus on a page element using CSS selector or XPath"
     },
     {
       "name": "blur",
-      "description": "Remove focus from a page element"
+      "description": "Remove focus (blur) from a page element using CSS selector or XPath"
     },
     {
       "name": "fill",
-      "description": "Fill an input field with a value"
+      "description": "Fill an input field with a value using CSS selector or XPath"
     },
     {
       "name": "select",
-      "description": "Select an option from a dropdown"
+      "description": "Select an option from an HTML <select> dropdown element using CSS  selector or XPath"
     },
     {
       "name": "keypress",
-      "description": "Send keyboard events"
+      "description": "Send a keypress event to the current tab or a specific element"
+    },
+    {
+      "name": "type",
+      "description": "Type a string as individual keystrokes (real keydown/keyup/input events per character) via Chrome DevTools Protocol"
+    },
+    {
+      "name": "insertText",
+      "description": "Insert a whole string at once into the focused element via Chrome DevTools Protocol (like an IME commit or paste - fires input/beforeinput but no per-key events)"
+    },
+    {
+      "name": "clear",
+      "description": "Clear a text field by selecting all of its contents and deleting them with real key events (Ctrl/Cmd+A then Backspace) via Chrome DevTools Protocol"
     },
     {
       "name": "screenshot",
-      "description": "Capture screenshots of the page or specific elements"
+      "description": "Capture a screenshot of the page or specific element using CSS selector or XPath"
     },
     {
       "name": "dom",
-      "description": "Get HTML content of the page or element"
+      "description": "Get outerHTML of the body or a specific element using CSS selector or  XPath"
     },
     {
       "name": "elements",
-      "description": "Query elements with detailed information"
+      "description": "Query all elements matching a CSS selector or XPath and get detailed  information about each element"
+    },
+    {
+      "name": "scroll",
+      "description": "Scroll the page or an element"
+    },
+    {
+      "name": "dialog",
+      "description": "Respond to a JavaScript dialog (alert, confirm, prompt, or onbeforeunload) that is blocking the tab"
     },
     {
       "name": "elementsFromPoint",
-      "description": "Get elements at specific coordinates"
+      "description": "Get information about all elements at a specific coordinate in the viewport"
     },
     {
       "name": "console_logs",
-      "description": "Get browser console logs"
+      "description": "Get the browser tab's console contents - what you would see in the DevTools console, including console messages, uncaught exceptions, and browser-generated entries (network errors, violations, etc.)"
+    },
+    {
+      "name": "watch_console",
+      "description": "Watch a browser tab's console in real time"
+    },
+    {
+      "name": "network_monitor",
+      "description": "Turn network monitoring on or off for a browser tab"
+    },
+    {
+      "name": "network_requests",
+      "description": "List the network requests captured since monitoring was enabled"
+    },
+    {
+      "name": "network_body",
+      "description": "Fetch the bodies for a single captured request by `requestId` (from network_requests)"
+    },
+    {
+      "name": "evaluate",
+      "description": "Execute JavaScript in the page and return the result"
+    },
+    {
+      "name": "compose",
+      "description": "Run a sequence of commands against a single tab in one call"
     },
     {
       "name": "new_tab",
-      "description": "Open a new browser tab"
+      "description": "Opens a new browser tab with the Kapture MCP usage documentation page"
     },
     {
       "name": "close",
-      "description": "Close a browser tab"
+      "description": "Closes a browser tab"
+    },
+    {
+      "name": "reload",
+      "description": "Reloads the current page in the browser tab"
+    },
+    {
+      "name": "show",
+      "description": "Brings the browser tab to the front and focuses it"
     }
   ],
   "tools_generated": true
