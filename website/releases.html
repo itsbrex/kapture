@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What's New in v1.2 — Kapture</title>
-<meta name="description" content="What's new in Kapture v1.2: click and hover at viewport coordinates — and reach inside iframes.">
-<meta property="og:title" content="What's New in Kapture v1.2">
-<meta property="og:description" content="Click and hover at viewport coordinates — and reach inside iframes.">
+<title>What's New in v1.2.1 — Kapture</title>
+<meta name="description" content="What's new in Kapture v1.2.1: screenshots work anywhere on the page, no matter where the fold is.">
+<meta property="og:title" content="What's New in Kapture v1.2.1">
+<meta property="og:description" content="Screenshots work anywhere on the page, no matter where the fold is.">
 <meta property="og:url" content="https://williamkapke.github.io/kapture/releases.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,8 +38,20 @@
 
 <main>
 <section class="page"><div class="wrap"><article class="doc">
+  <span class="eyebrow">Version 1.2.1</span>
+  <h1>Screenshots, anywhere on the page</h1>
+  <p class="lead">Screenshots no longer care where the fold is. Ask for an element and you get it, whether or not it has been scrolled into view.</p>
+
+  <h3>Fixes &amp; polish</h3>
+  <ul>
+    <li><strong>Element screenshots work below the fold.</strong> Capturing an element that wasn't scrolled into view used to fail with <code>ELEMENT_NOT_FOUND</code>. The capture now renders the page beyond the viewport, so any element can be photographed without scrolling the page, including fixed elements while the page is scrolled.</li>
+    <li><strong>Viewport screenshots follow the scroll.</strong> With the page scrolled down, a plain screenshot came back blank. It now captures exactly what's on screen.</li>
+    <li><strong>Hidden elements get a straight answer.</strong> A <code>display:none</code> element now returns an error saying it has no rendered size, instead of claiming the element doesn't exist.</li>
+  </ul>
+
+  <hr>
   <span class="eyebrow">Version 1.2</span>
-  <h1>Click anywhere</h1>
+  <h2 style="margin-top:0">Click anywhere</h2>
   <p class="lead">Kapture can now click and hover at a plain viewport coordinate — no selector required. When a page throws up an alert, the agent is no longer stuck: it sees the dialog and answers it. And a <code>compose</code> script can end with a screenshot or other read, so act-and-verify is one call.</p>
 
   <div class="callout">
