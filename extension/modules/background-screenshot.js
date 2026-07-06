@@ -4,15 +4,21 @@ import { getElement, getTabInfo, respondWithError, attachDebugger } from './back
 export async function screenshot({tabId}, { scale = 0.5, quality = 0.5, format = 'webp', selector, xpath }) {
   let elementResult;
   if (selector || xpath) {
-    elementResult = await getElement(tabId, selector, xpath, true);
+    // No visibility requirement: captureBeyondViewport renders the whole page,
+    // so elements outside the current viewport are still capturable.
+    elementResult = await getElement(tabId, selector, xpath);
     if (elementResult.error) return elementResult;
+    const { width, height } = elementResult.element.bounds;
+    if (!(width > 0) || !(height > 0)) {
+      return respondWithError(tabId, 'SCREENSHOT_ERROR', 'Element has no rendered size (display:none or collapsed)', selector, xpath);
+    }
   }
   else {
     elementResult = await getTabInfo(tabId)
     elementResult.element = {
       bounds: {
-        x: elementResult.scrollPosition.x,
-        y: elementResult.scrollPosition.y,
+        x: 0,
+        y: 0,
         width: elementResult.viewportDimensions.width,
         height: elementResult.viewportDimensions.height
       }
@@ -20,15 +26,13 @@ export async function screenshot({tabId}, { scale = 0.5, quality = 0.5, format =
   }
 
   const clip = { ...elementResult.element.bounds };
-  
-  // For fixed positioned elements, we need viewport-relative coordinates
-  // For non-fixed elements, we need document-relative coordinates
-  if (elementResult.element.position !== 'fixed') {
-    // Add scroll position to convert from viewport to document coordinates
-    clip.x += elementResult.scrollPosition.x;
-    clip.y += elementResult.scrollPosition.y;
-  }
-  
+
+  // Bounds are viewport-relative; the clip needs document coordinates.
+  // This holds for fixed positioned elements too: the capture renders them
+  // at their on-screen position mapped to document coordinates.
+  clip.x += elementResult.scrollPosition.x;
+  clip.y += elementResult.scrollPosition.y;
+
   if (scale) {
     clip.scale = scale;
   }
@@ -37,7 +41,10 @@ export async function screenshot({tabId}, { scale = 0.5, quality = 0.5, format =
     const screenshot = await chrome.debugger.sendCommand({ tabId }, 'Page.captureScreenshot', {
       format,
       quality: Math.round(quality * 100), // Chrome needs an integer percentage,
-      clip
+      clip,
+      // Element captures work anywhere on the page; viewport captures are the
+      // viewport by definition, so skip the full-page render the flag forces.
+      captureBeyondViewport: !!(selector || xpath)
     });
 
     return {

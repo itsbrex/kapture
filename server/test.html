@@ -396,5 +396,12 @@
         </div>
 
     </div>
+
+    <!-- Screenshot test targets: solid colors far below the fold so tests
+         can verify captured pixels, not just that a capture happened -->
+    <div id="screenshot-below-fold" style="margin-top: 2500px; width: 400px; height: 200px; background-color: #ff0000;">Below-the-fold screenshot target</div>
+    <div id="screenshot-tall-block" style="margin-top: 100px; width: 100%; height: 3000px; background-color: #0000ff;">Viewport-filling screenshot target</div>
+    <div id="screenshot-fixed" style="position: fixed; top: 10px; right: 10px; width: 100px; height: 100px; background-color: #00cc00;"></div>
+    <div id="screenshot-hidden" style="display: none; width: 100px; height: 100px; background-color: #ff00ff;"></div>
 </body>
 </html>
